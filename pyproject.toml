@@ -1,0 +1,83 @@
+[project]
+requires-python = ">=3.11.9"
+
+[tool.poetry]
+authors = ["Rikard Wadman <rikard.wadman@gmail.com>"]
+description = ""
+name = "sambo"
+readme = "README.md"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+alembic = "^1.13.2"
+fastapi = "^0.111.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pydantic = "^2.8.2"
+pyjwt = "^2.8.0"
+python = "^3.11.9"
+python-dotenv = "^1.0.1"
+sqlalchemy = "^2.0.31"
+sqlalchemy-utc = "^0.14.0"
+types-passlib = "^1.7.7.20240327"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.10.1"
+ruff = "^0.5.1"
+
+[tool.ruff]
+extend-exclude = ["alembic"]
+line-length = 120
+output-format = "concise"
+src = ["sambo"]
+
+[tool.ruff.lint]
+select = [
+  "B",
+  "E",
+  "F",
+  "W",
+  "C90",
+  "I",
+  "N",
+  "UP",
+  "ANN",
+  "ASYNC",
+  "S",
+  "BLE",
+  "A",
+  "COM",
+  "C4",
+  "DTZ",
+  "T10",
+  "EM",
+  "EXE",
+  "FA",
+  "ISC",
+  "ICN",
+  "LOG",
+  "G",
+  "PIE",
+  "RSE",
+  "RET",
+  "SLF",
+  "SLOT",
+  "SIM",
+  "TID",
+  "TCH",
+  "INT",
+  "PTH",
+  "PGH",
+  "PL",
+  "TRY",
+  "NPY",
+  "PERF",
+  "FURB",
+  "RUF",
+]
+
+[tool.mypy]
+disallow_untyped_defs = true
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
