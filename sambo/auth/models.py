@@ -3,10 +3,10 @@ import datetime as dt
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from . import db
+from sambo import database
 
 
-class User(db.Base):
+class User(database.Base):
     __tablename__ = "user"
     id: orm.Mapped[int] = orm.mapped_column(primary_key=True, autoincrement=True)
     email: orm.Mapped[str]

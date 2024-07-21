@@ -1,5 +1,4 @@
 import os
-import typing as t
 
 import dotenv
 import fastapi
@@ -19,17 +18,3 @@ database.Base.metadata.create_all(bind=database.engine)
 app = fastapi.FastAPI()
 
 auth.setup_routes(app)
-
-
-@app.get("/users/me/", response_model=auth.User)
-async def read_users_me(
-    current_user: t.Annotated[auth.User, fastapi.Depends(auth.get_current_active_user)],
-) -> auth.User:
-    return current_user
-
-
-@app.get("/users/me/items/")
-async def read_own_items(
-    current_user: t.Annotated[auth.User, fastapi.Depends(auth.get_current_active_user)],
-) -> list[dict]:
-    return [{"item_id": "Foo", "owner": current_user.username}]

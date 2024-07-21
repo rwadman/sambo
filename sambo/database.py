@@ -1,3 +1,4 @@
+import contextlib
 import os
 import typing as t
 
@@ -14,12 +15,15 @@ SessionLocal = orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # Dependency
-def get() -> t.Generator[orm.Session, None, None]:
+def get_dep() -> t.Generator[orm.Session, None, None]:
     db_ = SessionLocal()
     try:
         yield db_
     finally:
         db_.close()
+
+
+get = contextlib.contextmanager(get_dep)
 
 
 class Base(orm.DeclarativeBase): ...
