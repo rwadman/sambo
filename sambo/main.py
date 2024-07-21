@@ -3,7 +3,7 @@ import os
 import dotenv
 import fastapi
 
-from . import auth, database
+from . import auth
 
 dotenv.load_dotenv()
 # to get a string like this run:
@@ -13,7 +13,6 @@ ALGORITHM = os.environ["APP_HASH_ALGORITHM"]
 SQL_ALCHEMY_URI = os.environ["APP_SQL_ALCHEMY_URI"]
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-database.Base.metadata.create_all(bind=database.engine)
 
 app = fastapi.FastAPI()
 

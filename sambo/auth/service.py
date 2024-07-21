@@ -1,20 +1,21 @@
 import datetime as dt
 
+import bcrypt
 import jwt
-import passlib.context
 from sqlalchemy import orm
 
 from . import config, models, schemas
 
-pwd_context = passlib.context.CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> bytes:
+    pwd_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password=pwd_bytes, salt=salt)
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def verify_password(plain_password: str, hashed_password: bytes) -> bool:
+    password_byte_enc = plain_password.encode("utf-8")
+    return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password)
 
 
 def authenticate_user(email: str, password: str, db: orm.Session) -> models.User | None:
@@ -56,8 +57,8 @@ def get_users(db: orm.Session, skip: int = 0, limit: int = 100) -> list[models.U
 
 
 def create_user(db: orm.Session, user: schemas.UserCreate) -> models.User:
-    hashed_password = get_password_hash(user.password)
-    db_user = models.User(email=user.email, hashed_password=hashed_password)
+    hashed_password = hash_password(user.password)
+    db_user = models.User(email=user.email, full_name=user.full_name, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

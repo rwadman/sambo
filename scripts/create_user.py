@@ -22,7 +22,7 @@ def main() -> None:
             db,
             new_user,
         )
-        print("created user:", created_user)
+        print("created user:", created_user.__dict__)
 
 
 if __name__ == "__main__":
