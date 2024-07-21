@@ -6,7 +6,7 @@ from sqlalchemy import orm
 
 from sambo import database
 
-from . import config, models, schemas, service
+from . import config, models, service
 
 
 async def get_current_user(
@@ -31,8 +31,8 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: t.Annotated[schemas.User, fastapi.Depends(get_current_user)],
-) -> schemas.User:
+    current_user: t.Annotated[models.User, fastapi.Depends(get_current_user)],
+) -> models.User:
     if current_user.disabled:
         raise fastapi.HTTPException(status_code=400, detail="Inactive user")
     return current_user

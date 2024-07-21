@@ -7,7 +7,7 @@ from sqlalchemy import orm
 
 from sambo import database
 
-from . import config, dependencies, schemas, service
+from . import config, dependencies, models, schemas, service
 
 
 def setup_routes(app: fastapi.FastAPI) -> None:
@@ -27,8 +27,8 @@ def setup_routes(app: fastapi.FastAPI) -> None:
         access_token = service.create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
         return schemas.Token(access_token=access_token, token_type="bearer")  # noqa: S106
 
-    @app.get("/users/me/", response_model=schemas.User)
+    @app.get("/users/me/", response_model=schemas.UserInDb)
     async def read_users_me(
-        current_user: t.Annotated[schemas.User, fastapi.Depends(dependencies.get_current_active_user)],
+        current_user: t.Annotated[models.User, fastapi.Depends(dependencies.get_current_active_user)],
     ) -> schemas.User:
         return current_user

@@ -3,7 +3,7 @@ import os
 import dotenv
 import fastapi
 
-from . import auth
+from . import auth, expenses
 
 dotenv.load_dotenv()
 # to get a string like this run:
@@ -17,3 +17,4 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 app = fastapi.FastAPI()
 
 auth.setup_routes(app)
+expenses.setup_routes(app)

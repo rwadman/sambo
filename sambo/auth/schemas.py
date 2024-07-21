@@ -8,17 +8,14 @@ from . import config
 class User(pydantic.BaseModel):
     email: str
     full_name: str
-    disabled: bool
+    disabled: bool = False
 
     class Config:
         from_attributes = True
 
 
-class UserInDB(User):
-    hashed_password: str
-
-    class Config:
-        from_attributes = True
+class UserInDb(User):
+    id: int
 
 
 def check_pass_complexity(pw: str) -> str:
