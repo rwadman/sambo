@@ -27,3 +27,13 @@ get = contextlib.contextmanager(get_dep)
 
 
 class Base(orm.DeclarativeBase): ...
+
+
+ModelT = t.TypeVar("ModelT", bound=Base)
+
+
+def add(db: orm.Session, item: ModelT) -> ModelT:
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return item

@@ -30,5 +30,5 @@ def setup_routes(app: fastapi.FastAPI) -> None:
     @app.get("/users/me/", response_model=schemas.UserInDb)
     async def read_users_me(
         current_user: t.Annotated[models.User, fastapi.Depends(dependencies.get_current_active_user)],
-    ) -> schemas.User:
+    ) -> models.User:
         return current_user
