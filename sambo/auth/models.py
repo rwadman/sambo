@@ -21,5 +21,13 @@ class User(sambo.database.Base):
         back_populates="created_by",
         foreign_keys="sambo.expenses.models.Expense.created_by_id",
     )
+    participations: orm.Mapped[list["sambo.expenses.models.Participant"]] = orm.relationship(
+        back_populates="user",
+        foreign_keys="sambo.expenses.models.Participant.user_id",
+    )
+    created_boards: orm.Mapped[list["sambo.expenses.models.Board"]] = orm.relationship(
+        back_populates="created_by",
+        foreign_keys="sambo.expenses.models.Board.created_by_id",
+    )
     created_at: orm.Mapped[dt.datetime] = orm.mapped_column(server_default=sa.func.now())
     updated_at: orm.Mapped[dt.datetime] = orm.mapped_column(server_default=sa.func.now(), onupdate=sa.func.now())
