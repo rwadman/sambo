@@ -28,9 +28,15 @@ def setup_routes(app: fastapi.FastAPI) -> None:
         db: t.Annotated[orm.Session, fastapi.Depends(sambo.database.get_dep)],
     ) -> models.Expense:
         if sambo.auth.service.get_user(db, id_=expense.paid_by_id, require_active=True) is None:
-            raise fastapi.HTTPException(
-                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
+            raise fastapi.exceptions.RequestValidationError(
+                [
+                    {
+                        "type": "entity_not_found",
+                        "loc": ["body", "paid_by_id"],
+                        "msg": "Could not find active user with requested id",
+                        "input": expense.paid_by_id,
+                    },
+                ],
             )
+
         return service.create_expense(db, expense, me)

@@ -40,5 +40,11 @@
         "**/.ruff_cache": true,
         "**/.mypy_cache": true,
         "**/__pycache__": true,
-    }
+    },
+    "mypy.runUsingActiveInterpreter": true,
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

@@ -6,12 +6,11 @@ from . import config
 
 
 class User(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(from_attributes=True)
+
     email: str
     full_name: str
     disabled: bool = False
-
-    class Config:
-        from_attributes = True
 
 
 class UserInDb(User):

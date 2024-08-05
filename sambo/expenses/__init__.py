@@ -1,2 +1,2 @@
-from . import models
+from . import models, schemas, service
 from .router import setup_routes
