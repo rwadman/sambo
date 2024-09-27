@@ -19,7 +19,7 @@ class UserInDb(User):
 
 def check_pass_complexity(pw: str) -> str:
     if len(pw) < config.PASSWORD_MIN_LENGTH:
-        msg = "Choose a better password (must have length > 6)"
+        msg = f"Choose a better password (must have length >= {config.PASSWORD_MIN_LENGTH})"
         raise ValueError(msg)
     return pw
 
