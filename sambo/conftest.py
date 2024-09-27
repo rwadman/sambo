@@ -1,4 +1,5 @@
 import pathlib
+import typing as t
 
 import fastapi
 import fastapi.testclient
@@ -14,11 +15,12 @@ def db(tmp_path: pathlib.Path) -> sa.Engine:
 
 
 @pytest.fixture
-def app(db: sa.Engine) -> fastapi.FastAPI:
-    app_ = main.app
-    app_.dependency_overrides[database.get_dep] = testlib.db.override_get_dep(db)
-
-    return app_
+def app(db: sa.Engine) -> t.Generator[fastapi.FastAPI, None, None]:
+    main.app.dependency_overrides[database.get_dep] = testlib.db.override_get_dep(db)
+    try:
+        yield main.app
+    finally:
+        main.app.dependency_overrides = {}
 
 
 @pytest.fixture
