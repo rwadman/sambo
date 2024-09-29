@@ -20,11 +20,12 @@ def override_get_dep(engine: sa.Engine) -> t.Callable[[], t.Generator[orm.Sessio
     return get_dep
 
 
-def setup_test_db(folder: pathlib.Path) -> sa.Engine:
-    engine = sa.create_engine(f"sqlite:///{folder}/testdata.db")
+def setup_test_db(folder: pathlib.Path) -> pathlib.Path:
+    path = folder / "testdata.db"
+    engine = sa.create_engine(f"sqlite:///{path}")
     database.Base.metadata.create_all(engine)
     db = orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)()
     auth.insert_test_users(db)
     expenses.insert_test_expenses(db)
 
-    return engine
+    return path

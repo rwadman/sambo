@@ -1,4 +1,5 @@
 import pathlib
+import shutil
 import typing as t
 
 import fastapi
@@ -10,9 +11,16 @@ from sqlalchemy import orm
 from . import database, main, testlib
 
 
+@pytest.fixture(scope="session")
+def test_db_dont_mutate(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    test_db_dir = tmp_path_factory.mktemp("testdb")
+    return testlib.db.setup_test_db(test_db_dir)
+
+
 @pytest.fixture
-def db_engine(tmp_path: pathlib.Path) -> sa.Engine:
-    return testlib.db.setup_test_db(tmp_path)
+def db_engine(tmp_path: pathlib.Path, test_db_dont_mutate: pathlib.Path) -> sa.Engine:
+    path = shutil.copyfile(test_db_dont_mutate, tmp_path / "testdata.db")
+    return sa.create_engine(f"sqlite:///{path}")
 
 
 @pytest.fixture
