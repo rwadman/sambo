@@ -135,3 +135,28 @@ def test_post_board_succeeds_for_valid_input(
     assert created["description"] == create_board["description"]
     assert created["created_by"]["email"] == user.email
     assert len(created["participants"]) == len(create_board.get("participants", []))
+
+
+@pytest.mark.parametrize(
+    "user",
+    sambo.testlib.TEST_USERS,
+)
+def test_get_boards_lists_all_participatory_boards(
+    app: fastapi.FastAPI,
+    db: orm.Session,
+    client: fastapi.testclient.TestClient,
+    user: sambo.auth.schemas.User,
+) -> None:
+    sambo.testlib.auth.login_as(app=app, user=user)
+    db_user = sambo.testlib.auth.db_user(db, user)
+    assert db_user is not None
+
+    result = client.get("/board")
+    assert result.is_success
+    data = result.json()
+
+    expected_boards = (
+        db.query(models.Board).join(models.Participant.board).where(models.Participant.user_id == db_user.id).all()
+    )
+
+    assert len(data) == len(expected_boards)

@@ -1,3 +1,4 @@
+import random
 import typing as t
 
 import polyfactory
@@ -81,19 +82,63 @@ def board_factory(
     return BoardFactory
 
 
-def insert_test_expenses(db: orm.Session, n_expenses: int = 30) -> list[expenses.models.Expense]:
+def insert_test_expenses(db: orm.Session, n_expenses: int = 100) -> list[expenses.models.Expense]:
     users = db.query(auth.models.User).all()
 
     boards = board_factory(users).batch(4)
     boards = database.add_all(db, boards)
 
     participant_factory_ = participant_factory(users)
-    participants = [
-        participant_factory_.build(board_id=board.id, user_id=u.id)
+    participants = {
+        board.id: [participant_factory_.build(board_id=board.id, user_id=u.id) for u in users[:n_participants]]
         for board, n_participants in zip(boards, [3, 2, 1, 0], strict=False)
-        for u in users[:n_participants]
-    ]
-    database.add_all(db, participants)
+    }
+
+    database.add_all(db, [p for ps in participants.values() for p in ps])
 
     expenses = expense_factory(users, boards=boards).batch(n_expenses)
-    return database.add_all(db, expenses)
+    expenses = database.add_all(db, expenses)
+    insert_participations_for_expenses(db, expenses, users, participants, rng=random.Random(3))  # noqa: S311
+    return expenses
+
+
+def insert_participations_for_expenses(
+    db: orm.Session,
+    expenses: list[expenses.models.Expense],
+    users: list[auth.models.User],
+    participants: dict[int, list[expenses.models.Participant]],
+    rng: random.Random,
+) -> None:
+    participations = [
+        p for expense in expenses for p in make_participations_for_expense(expense, users, participants, rng)
+    ]
+    database.add_all(db, participations)
+
+
+def make_participations_for_expense(
+    expense: expenses.models.Expense,
+    users: list[auth.models.User],
+    participants: dict[int, list[expenses.models.Participant]],
+    rng: random.Random,
+) -> list[expenses.models.ExpenseParticipation]:
+    if expense.board_id is None or expense.board_id not in participants or not participants[expense.board_id]:
+        return []
+    user_ids = [u.id for u in users]
+    expense_participants = participants[expense.board_id]
+    weights = [rng.uniform(0.1, 10) for _ in expense_participants]
+    total_weight = sum(weights)
+    amounts = [expense.amount * w / total_weight for w in weights]
+
+    return [
+        expenses.models.ExpenseParticipation(
+            participant_id=participant.id,
+            weight=weight,
+            amount=amount,
+            expense_id=expense.id,
+            updated_by_id=rng.choice(user_ids),
+            created_at=faker.time_in_the_past(),
+            updated_at=faker.time_in_the_past(),
+            deleted_at=None,
+        )
+        for participant, weight, amount in zip(expense_participants, weights, amounts, strict=False)
+    ]

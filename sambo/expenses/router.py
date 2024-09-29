@@ -82,3 +82,12 @@ def setup_routes(app: fastapi.FastAPI) -> None:
             )
 
         return service.create_board(db, board, me)
+
+    @app.get("/board", response_model=list[schemas.BoardInDB])
+    async def boards(
+        my_boards: t.Annotated[
+            list[models.Board],
+            fastapi.Depends(dependencies.my_boards),
+        ],
+    ) -> list[models.Board]:
+        return my_boards
