@@ -73,6 +73,10 @@ class Participant(sambo.database.Base):
     )
 
     default_weight: orm.Mapped[float] = orm.mapped_column(default=1.0)
+    created_by_id: orm.Mapped[int] = orm.mapped_column(sa.ForeignKey("user.id"))
+    created_by: orm.Mapped[sambo.auth.models.User] = orm.relationship(
+        foreign_keys="Participant.created_by_id",
+    )
     created_at: orm.Mapped[dt.datetime] = orm.mapped_column(server_default=sa.func.now())
     updated_at: orm.Mapped[dt.datetime] = orm.mapped_column(server_default=sa.func.now(), onupdate=sa.func.now())
     deleted_at: orm.Mapped[dt.datetime | None] = orm.mapped_column(default=None)

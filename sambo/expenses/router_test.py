@@ -82,3 +82,56 @@ def test_post_expense_succeeds_for_valid_input(
     assert created["created_by"]["email"] == user.email
     assert created["text"] == create_expense["text"]
     assert created["paid_by_id"] == create_expense["paid_by_id"]
+
+
+@pytest.mark.parametrize(
+    "create_board",
+    [
+        {},
+        {"description": "hello"},
+        {
+            "name": "board1",
+            "description": "a board",
+            "participants": [{"user_id": 1, "weight": 2}, {"user_id": 1, "weight": 1}],
+        },
+    ],
+)
+def test_post_board_fails_for_incomplete_or_invalid_input(
+    app: fastapi.FastAPI,
+    client: fastapi.testclient.TestClient,
+    create_board: dict[str, t.Any],
+) -> None:
+    user = sambo.testlib.USER1
+    sambo.testlib.auth.login_as(app=app, user=user)
+    result = client.post("/board", json=create_board)
+    assert result.is_error
+    assert result.is_client_error
+    assert result.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+@pytest.mark.parametrize(
+    "create_board",
+    [
+        {"name": "board1", "description": "a board"},
+        {
+            "name": "board1",
+            "description": "a board",
+            "participants": [{"user_id": 1, "weight": 2}, {"user_id": 2, "weight": 1}],
+        },
+    ],
+)
+def test_post_board_succeeds_for_valid_input(
+    app: fastapi.FastAPI,
+    client: fastapi.testclient.TestClient,
+    create_board: dict[str, t.Any],
+) -> None:
+    user = sambo.testlib.USER1
+    sambo.testlib.auth.login_as(app=app, user=user)
+    result = client.post("/board", json=create_board)
+
+    assert result.is_success
+    created = result.json()
+    assert created["name"] == create_board["name"]
+    assert created["description"] == create_board["description"]
+    assert created["created_by"]["email"] == user.email
+    assert len(created["participants"]) == len(create_board.get("participants", []))
