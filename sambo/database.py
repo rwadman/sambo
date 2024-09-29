@@ -30,6 +30,7 @@ class Base(orm.DeclarativeBase): ...
 
 
 ModelT = t.TypeVar("ModelT", bound=Base)
+ModelsT = t.TypeVar("ModelsT", bound=t.Collection[Base])
 
 
 def add(db: orm.Session, item: ModelT) -> ModelT:
@@ -37,3 +38,11 @@ def add(db: orm.Session, item: ModelT) -> ModelT:
     db.commit()
     db.refresh(item)
     return item
+
+
+def add_all(db: orm.Session, items: ModelsT) -> ModelsT:
+    db.add_all(items)
+    db.commit()
+    for item in items:
+        db.refresh(item)
+    return items

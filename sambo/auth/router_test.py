@@ -29,13 +29,13 @@ def test_login(client: fastapi.testclient.TestClient, username: str, password: s
 @pytest.mark.parametrize(
     "username",
     [
-        "user1@example.com",
+        sambo.testlib.USER1.email,
         None,
     ],
 )
 def test_get_me(username: str | None, app: fastapi.FastAPI, client: fastapi.testclient.TestClient) -> None:
     if username:
-        sambo.testlib.auth.login_as(app=app, user_id=username)
+        sambo.testlib.auth.login_as(app=app, user=username)
 
     result = client.get("/users/me")
     if username:

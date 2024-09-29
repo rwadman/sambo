@@ -6,7 +6,7 @@ from sqlalchemy import orm
 
 from sambo import database
 
-from . import auth
+from . import auth, expenses
 
 
 def override_get_dep(engine: sa.Engine) -> t.Callable[[], t.Generator[orm.Session, None, None]]:
@@ -25,5 +25,6 @@ def setup_test_db(folder: pathlib.Path) -> sa.Engine:
     database.Base.metadata.create_all(engine)
     db = orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)()
     auth.insert_test_users(db)
+    expenses.insert_test_expenses(db)
 
     return engine
